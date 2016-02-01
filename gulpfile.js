@@ -17,7 +17,7 @@ gulp.task('dev', function () {
 gulp.task('build', function () {
 	lint();
 	bundlejs();
-	images();
+	resources();
 	views();
 	styles();
 });
@@ -56,10 +56,10 @@ function bundlejs() {
 		.pipe(gulp.dest('./build'));
 }
 
-gulp.task('images', images);
-function images() {
-	gulp.src('./app/img/*')
-		.pipe(gulp.dest('./build/img'));
+gulp.task('resources', resources);
+function resources() {
+	gulp.src('./app/resources/*')
+		.pipe(gulp.dest('./build/resources'));
 }
 
 gulp.task('views', views);
@@ -82,8 +82,8 @@ gulp.task('watch', function () {
 		'lint',
 		'bundlejs'
 	]);
-	gulp.watch(['app/img/*'], [
-		'images'
+	gulp.watch(['app/resources/*'], [
+		'resources'
 	]);
 	gulp.watch(['app/index.html', 'app/**/*.html'], [
 		'views'
