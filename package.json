@@ -4,15 +4,13 @@
   "scripts": {
     "start": "gulp dev build serve watch"
   },
-  "browser": {
-  },
+  "browser": {},
   "browserify": {
     "transform": [
       "browserify-shim"
     ]
   },
-  "browserify-shim": {
-  },
+  "browserify-shim": {},
   "devDependencies": {
     "browserify": "^12.0.1",
     "browserify-shim": "^3.8.11",
@@ -25,5 +23,9 @@
     "jshint": "^2.9.1-rc2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+    "d3": "^3.5.14",
+    "lodash": "^4.1.0"
   }
 }
