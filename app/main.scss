@@ -1,9 +1,54 @@
-$theme: darkred;
+svg	{
+	border: 1px solid black;
+}
 
-body {
-	@for $i from 1 through 4 {
-    :nth-child(3n + #{$i}) {
-      color: lighten($theme, $i*15%)
-    }
-  }
+.axis {
+	path, line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+
+	text {
+	  font: 10px sans-serif;
+	}
+}
+
+.grid .tick {
+  stroke: lightgrey;
+  shape-rendering: crispEdges;
+  opacity: 0.7;
+}
+
+.tooltip {
+  font: 12px sans-serif;
+}
+
+.line {
+	fill: none;
+	&.target {
+		stroke: grey;
+		stroke-dasharray: 10 5;
+	}
+
+	&.count {
+		stroke: green;
+		stroke-width: 2px;
+	}
+
+	@at-root circle#{&} {
+		fill: white;
+	}
+}
+
+.area {
+	opacity: 0.5;
+	&.target {
+		fill: grey;
+		opacity: 0.3;
+	}
+	
+	&.count {
+		fill: green;
+	}
 }
