@@ -235,18 +235,18 @@ d3
       })
       .on('mousemove', function () {
       	var d = getClosestEntry(data, x, d3.mouse(this)[0]);
-			  highlightCount.attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
+			  highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
 			  highlightCount.select('text')
 			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? 15 : -5) + ')')
 			  	.text('SST : ' + d.count);
 
-			  highlightTarget.attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
+			  highlightTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
 			  highlightTarget.select('text')
 			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? -5 : 15) + ')')
 			  	.text('Cible : ' + d.target);
 
-		  	highlightAbscissa.attr('transform', 'translate(' + x(d.date) + ', 0)');
-		  	highlightOrdinateCount.attr('transform', 'translate(0, ' + y(d.count) + ')');
-		  	highlightOrdinateTarget.attr('transform', 'translate(0, ' + y(d.target) + ')');
+		  	highlightAbscissa.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ', 0)');
+		  	highlightOrdinateCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.count) + ')');
+		  	highlightOrdinateTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.target) + ')');
 			});
 	});
