@@ -1,3 +1,6 @@
+$count-color: green;
+$target-color: grey;
+
 svg	{
 	border: 1px solid black;
 }
@@ -14,10 +17,19 @@ svg	{
 	}
 }
 
-.grid .tick {
-  stroke: lightgrey;
-  shape-rendering: crispEdges;
-  opacity: 0.7;
+.coordinates {
+	shape-rendering: crispEdges;
+	stroke-dasharray: 10 5;
+	stroke: grey;
+	opacity: 0.5;
+}
+
+.grid {
+	opacity: 0.5;
+	.tick {
+		shape-rendering: crispEdges;
+		stroke: lightgrey;
+	}
 }
 
 .tooltip {
@@ -27,12 +39,16 @@ svg	{
 .line {
 	fill: none;
 	&.target {
-		stroke: grey;
+		stroke: $target-color;
 		stroke-dasharray: 10 5;
+		@at-root circle#{&} {
+			stroke-width: 2px;
+			stroke-dasharray: none;
+		}
 	}
 
 	&.count {
-		stroke: green;
+		stroke: $count-color;
 		stroke-width: 2px;
 	}
 
@@ -44,11 +60,11 @@ svg	{
 .area {
 	opacity: 0.5;
 	&.target {
-		fill: grey;
+		fill: $target-color;
 		opacity: 0.3;
 	}
 	
 	&.count {
-		fill: green;
+		fill: $count-color;
 	}
 }

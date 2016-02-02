@@ -75,14 +75,15 @@ d3
 
 
 // GRID
-		svg.append('g')
+		var grid = svg.append('g');
+		grid.append('g')
       .attr('class', 'grid')
       .attr('transform', 'translate(0,' + height + ')')
       .call(xAxis
         .tickSize(-height, 0)
         .tickFormat('')
       );
-    svg.append('g')         
+    grid.append('g')         
       .attr('class', 'grid')
       .call(yAxis
         .tickSize(-width, 0)
@@ -146,16 +147,6 @@ d3
 				  .y0(targetLine.y())
 				  .y1(0));
 
-// LINES
-	  svg.append('path')
-      .attr('class', 'count line')
-      .datum(data)
-      .attr('d', countLine);
-	  svg.append('path')
-      .attr('class', 'target line')
-      .datum(data)
-      .attr('d', targetLine);
-
 // AREAS
 		svg.append('path')
 		  .datum(data)
@@ -176,30 +167,51 @@ d3
 			  .y0(targetLine.y())
 			  .y1(height));
 
+// COORDINATES HIGHLIGHT PLACEHOLDER
+		var highlightCoordinates = svg.append('g')
+			.style('display', 'none')
+			.attr('class', 'coordinates');
+
+// LINES
+	  svg.append('path')
+      .attr('class', 'target line')
+      .datum(data)
+      .attr('d', targetLine);
+	  svg.append('path')
+      .attr('class', 'count line')
+      .datum(data)
+      .attr('d', countLine);
+
 
 // ---------------------------------------------------------
-// FOCUS DEFINITION
+// HIGHLIGHT DEFINITION
 // ---------------------------------------------------------
 
-		var focus = svg.append('g')
-    	.style('display', 'none');
+		var highlight = svg.append('g')
+			.style('display', 'none');
 
-		focus.append('circle') 
+		var highlightAbscissa = highlightCoordinates.append('path')
+			.attr('d', 'M0,0V' + height);
+		var highlightOrdinateCount = highlightCoordinates.append('path')
+			.attr('d', 'M0,0H' + width);
+		var highlightOrdinateTarget = highlightCoordinates.append('path')
+			.attr('d', 'M0,0H' + width);
+
+		var highlightTarget = highlight.append('g');
+		highlightTarget.append('circle') 
+      .attr('class', 'target line')
+      .attr('r', 4);
+		highlightTarget.append('text')
+			.attr('class', 'tooltip')
+			.attr('text-anchor', 'middle');
+
+		var highlightCount = highlight.append('g');
+		highlightCount.append('circle') 
       .attr('class', 'count line')
       .attr('r', 4);
-
-		var text = focus.append('text')
+		highlightCount.append('text')
 				.attr('class', 'tooltip')
-				.attr('text-anchor', 'middle')
-				.attr('transform', 'translate(0, -5)'),
-			count = focus.append('text')
-				.attr('class', 'tooltip')
-				.attr('text-anchor', 'middle')
-				.attr('transform', 'translate(0, 15)'),
-			target = focus.append('text')
-				.attr('class', 'tooltip')
-				.attr('text-anchor', 'middle')
-				.attr('transform', 'translate(0, 25)');
+				.attr('text-anchor', 'middle');
 
 
 // ---------------------------------------------------------
@@ -212,16 +224,29 @@ d3
       .style('fill', 'none')
       .style('pointer-events', 'all')
       .on('mouseover', function () {
-      	focus.style('display', null);
+      	highlight.style('display', null);
+      	highlightCoordinates.style('display', null);
+      	grid.style('display', 'none');
       })
       .on('mouseout', function () {
-      	focus.style('display', 'none');
+      	highlight.style('display', 'none');
+      	highlightCoordinates.style('display', 'none');
+      	grid.style('display', null);
       })
       .on('mousemove', function () {
       	var d = getClosestEntry(data, x, d3.mouse(this)[0]);
-			  focus.attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
-			  text.text(focusTimeFormat(d.date));
-			  count.text('SST : ' + d.count);
-			  target.text('Cible : ' + d.target);
+			  highlightCount.attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
+			  highlightCount.select('text')
+			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? 15 : -5) + ')')
+			  	.text('SST : ' + d.count);
+
+			  highlightTarget.attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
+			  highlightTarget.select('text')
+			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? -5 : 15) + ')')
+			  	.text('Cible : ' + d.target);
+
+		  	highlightAbscissa.attr('transform', 'translate(' + x(d.date) + ', 0)');
+		  	highlightOrdinateCount.attr('transform', 'translate(0, ' + y(d.count) + ')');
+		  	highlightOrdinateTarget.attr('transform', 'translate(0, ' + y(d.target) + ')');
 			});
 	});
