@@ -237,11 +237,13 @@ d3
       	var d = getClosestEntry(data, x, d3.mouse(this)[0]);
 			  highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
 			  highlightCount.select('text')
+			  	.transition().duration(100).ease(d3.ease('linear'))
 			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? 15 : -5) + ')')
 			  	.text('SST : ' + d.count);
 
 			  highlightTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
 			  highlightTarget.select('text')
+			  	.transition().duration(100).ease(d3.ease('linear'))
 			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? -5 : 15) + ')')
 			  	.text('Cible : ' + d.target);
 
