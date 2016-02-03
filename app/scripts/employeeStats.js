@@ -1,11 +1,9 @@
 'use strict';
 
-require('./scripts/employeeStats.js');
-
 var d3 = window.d3 = require('d3');
 var _ = require('lodash');
 
-var locale = require('./resources/fr-FR.js');
+var locale = require('../resources/fr-FR.js');
 
 var margin = {
 		top: 20,
@@ -14,7 +12,7 @@ var margin = {
 		left: 50
 	},
   width = 500 - margin.left - margin.right,
-  height = 150 - margin.top - margin.bottom;
+  height = 100 - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
   .attr('width', width + margin.left + margin.right)
@@ -57,23 +55,35 @@ function getClosestEntry (data, scale, pos) {
 	return date - lo.date > hi.date - date ? hi : lo;
 }
 
+function statusColor (status) {
+	switch (status) {
+		case 'danger': return 'red';
+		case 'warning': return 'orange';
+		case 'success': return 'green';
+		default: return 'grey';
+	}
+}
+
+function statusText (status) {
+	switch (status) {
+		case 'danger': return 'certification expiree';
+		case 'warning': return 'expire sous 6 mois';
+		case 'success': return 'certification valide';
+		default: return 'jamais forme(e)';
+	}
+}
+
 d3
-	.json('./resources/2399.json', function (error, data) {
+	.json('../resources/00009408.json', function (error, data) {
 		data = _(data).map(function (entry, date) {
 			return {
-				count: entry.certificates['1'].count,
-				target: entry.certificates['1'].target,
+				validityStatus: entry.certificates['1'] ? entry.certificates['1'].validityStatus : 'none',
 				date: new Date(date)
 			};
 		}).sortBy('date').value();
 
 		var x = d3.time.scale().domain([_.minBy(data, 'date').date, _.maxBy(data, 'date').date]).range([0, width]).nice();
-		var y = d3.scale.linear().domain([0, _.reduce(data, function (max, entry) {
-			return _.max([max, entry.count, entry.target]);
-		}, 0)]).range([height, 0]).nice();
-
 		var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(width / 100);
-		var yAxis = d3.svg.axis().scale(y).orient('left').ticks(height / 30);
 
 
 // GRID
@@ -83,12 +93,6 @@ d3
       .attr('transform', 'translate(0,' + height + ')')
       .call(xAxis
         .tickSize(-height, 0)
-        .tickFormat('')
-      );
-    grid.append('g')         
-      .attr('class', 'grid')
-      .call(yAxis
-        .tickSize(-width, 0)
         .tickFormat('')
       );
 
@@ -101,12 +105,6 @@ d3
 				.tickSize(6, 0)
 				.tickFormat(axisTimeFormat)
 			);
-		svg.append('g')
-			.attr('class', 'y axis')
-			.call(
-				yAxis.tickSize(6, 0)
-				.tickFormat(d3.format('d'))
-			);
 
 
 // ---------------------------------------------------------
@@ -114,75 +112,48 @@ d3
 // ---------------------------------------------------------
 
 		var countLine = d3.svg.line()
-	    .interpolate('monotone')
 	    .x(function(d) {
 	    	return x(d.date);
 	    })
-	    .y(function(d) {
-	    	return y(d.count);
-	    });
-		var targetLine = d3.svg.line()
-	    .interpolate('monotone')
-	    .x(countLine.x())
-	    .y(function(d) {
-	    	return y(d.target);
-	    });
+	    .y(1);
 
-// CLIPPING AREAS
-		var defs = svg.append('defs');
-		defs.append('clipPath')
-		  .attr('id', 'clip-count')
-		  .append('path')
-			  .datum(data)
+		function segment (entries) {
+			return _(entries).tail().reduce(function (segments, entry) {
+				var segment = _.last(segments);
+				if(entry.validityStatus !== _.last(segment).validityStatus) {
+					segments.push([entry]);
+				}
+
+				segment.push(entry);
+				return segments;
+			}, [[_.first(entries)]]);
+		}
+
+    svg.append('g').selectAll('path')
+      .data(segment(data))
+	    .enter().append('path')
+	      .attr('class', 'count area')
 			  .attr('d', d3.svg.area()
-			    .interpolate('monotone')
 				  .x(countLine.x())
 				  .y0(countLine.y())
-				  .y1(0));
-		defs.append('clipPath')
-		  .attr('id', 'clip-target')
-		  .append('path')
-			  .datum(data)
-			  .attr('d', d3.svg.area()
-			    .interpolate('monotone')
-				  .x(targetLine.x())
-				  .y0(targetLine.y())
-				  .y1(0));
-
-// AREAS
-		svg.append('path')
-		  .datum(data)
-		  .attr('class', 'count area')
-		  .attr('clip-path', 'url(#clip-target)')
-		  .attr('d', d3.svg.area()
-		    .interpolate('monotone')
-			  .x(countLine.x())
-			  .y0(countLine.y())
-			  .y1(height));
-		svg.append('path')
-		  .datum(data)
-		  .attr('class', 'target area')
-		  .attr('clip-path', 'url(#clip-count)')
-		  .attr('d', d3.svg.area()
-		    .interpolate('monotone')
-			  .x(targetLine.x())
-			  .y0(targetLine.y())
-			  .y1(height));
+				  .y1(height))
+			  .style('fill', function (d) {
+			  	return statusColor(d[0].validityStatus);
+			  });
 
 // COORDINATES HIGHLIGHT PLACEHOLDER
 		var highlightCoordinates = svg.append('g')
 			.style('display', 'none')
 			.attr('class', 'coordinates');
 
-// LINES
-	  svg.append('path')
-      .attr('class', 'target line')
-      .datum(data)
-      .attr('d', targetLine);
-	  svg.append('path')
-      .attr('class', 'count line')
-      .datum(data)
-      .attr('d', countLine);
+	  svg.append('g').selectAll('path')
+      .data(segment(data))
+	    .enter().append('path')
+	      .attr('d', countLine)
+	      .attr('class', 'count line')
+	      .style('stroke', function (d) {
+			  	return statusColor(d[0].validityStatus);
+			  });
 
 
 // ---------------------------------------------------------
@@ -194,18 +165,6 @@ d3
 
 		var highlightAbscissa = highlightCoordinates.append('path')
 			.attr('d', 'M0,0V' + height);
-		var highlightOrdinateCount = highlightCoordinates.append('path')
-			.attr('d', 'M0,0H' + width);
-		var highlightOrdinateTarget = highlightCoordinates.append('path')
-			.attr('d', 'M0,0H' + width);
-
-		var highlightTarget = highlight.append('g');
-		highlightTarget.append('circle') 
-      .attr('class', 'target line')
-      .attr('r', 4);
-		highlightTarget.append('text')
-			.attr('class', 'tooltip')
-			.attr('text-anchor', 'middle');
 
 		var highlightCount = highlight.append('g');
 		highlightCount.append('circle') 
@@ -237,20 +196,14 @@ d3
       })
       .on('mousemove', function () {
       	var d = getClosestEntry(data, x, d3.mouse(this)[0]);
-			  highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
+			  highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  1 + ')');
 			  highlightCount.select('text')
 			  	.transition().duration(100).ease(d3.ease('linear'))
-			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? 17 : -8) + ')')
-			  	.text('SST : ' + d.count);
-
-			  highlightTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
-			  highlightTarget.select('text')
-			  	.transition().duration(100).ease(d3.ease('linear'))
-			  	.attr('transform', 'translate(0, ' + (d.target > d.count ? -8 : 17) + ')')
-			  	.text('Cible : ' + d.target);
+			  	.attr('transform', 'translate(0, -8)')
+			  	.text('SST : ' + statusText(d.validityStatus))
+			  	.style('fill', statusColor(d.validityStatus));
+		  	highlightCount.select('circle').style('stroke', statusColor(d.validityStatus));
 
 		  	highlightAbscissa.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ', 0)');
-		  	highlightOrdinateCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.count) + ')');
-		  	highlightOrdinateTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.target) + ')');
 			});
 	});
