@@ -7,14 +7,12 @@ svg	{
 
 .axis {
 	opacity: 1;
-
 	path, line {
 	  fill: none;
 	  stroke: #000;
 	  shape-rendering: crispEdges;
 	  stroke-dasharray: 0;
 	}
-
 	text {
 	  font: 10px sans-serif;
 	  stroke: none;
@@ -34,10 +32,6 @@ svg	{
 		shape-rendering: crispEdges;
 		stroke: lightgrey;
 	}
-}
-
-.tooltip {
-  font: 12px sans-serif;
 }
 
 .line {
@@ -71,4 +65,14 @@ svg	{
 	&.count {
 		fill: $count-color;
 	}
+}
+
+text {
+  font: 12px sans-serif;
+  &.target {
+  	fill: $target-color;
+  }
+  &.count {
+  	fill: $count-color;
+  }
 }
