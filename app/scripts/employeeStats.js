@@ -21,7 +21,7 @@ var svg = d3.select('body').append('svg')
   	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 
-var focusTimeFormat = locale.timeFormat('%b %Y'),
+var focusTimeFormat = locale.timeFormat('%d %b %Y'),
 	axisTimeFormat = locale.timeFormat.multi([
 	  ['.%L', function(d) { return d.getMilliseconds(); }],
 	  [':%S', function(d) { return d.getSeconds(); }],
@@ -83,7 +83,7 @@ d3
 		}).sortBy('date').value();
 
 		var x = d3.time.scale().domain([_.minBy(data, 'date').date, _.maxBy(data, 'date').date]).range([0, width]).nice();
-		var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(width / 100);
+		var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(width / 80);
 
 
 // GRID
@@ -143,8 +143,7 @@ d3
 
 // COORDINATES HIGHLIGHT PLACEHOLDER
 		var highlightCoordinates = svg.append('g')
-			.style('display', 'none')
-			.attr('class', 'coordinates');
+			.style('display', 'none');
 
 	  svg.append('g').selectAll('path')
       .data(segment(data))
@@ -163,8 +162,13 @@ d3
 		var highlight = svg.append('g')
 			.style('display', 'none');
 
-		var highlightAbscissa = highlightCoordinates.append('path')
-			.attr('d', 'M0,0V' + height);
+		var highlightAbscissa = highlightCoordinates.append('g');
+		highlightAbscissa.append('path')
+			.attr('d', 'M0,0V' + height)
+			.attr('class', 'highlight-coordinates');
+		var highlightAbscissaTick = highlightAbscissa.append('g').attr('class', 'axis');
+		highlightAbscissaTick.append('path').attr('d', 'M0,' + height + 'v15');
+		highlightAbscissaTick.append('text').attr('transform', 'translate(0, ' + (height + 25) + ')').attr('text-anchor', 'middle');
 
 		var highlightCount = highlight.append('g');
 		highlightCount.append('circle') 
@@ -204,6 +208,7 @@ d3
 			  	.style('fill', statusColor(d.validityStatus));
 		  	highlightCount.select('circle').style('stroke', statusColor(d.validityStatus));
 
+		  	highlightAbscissaTick.select('text').text(focusTimeFormat(d.date));
 		  	highlightAbscissa.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ', 0)');
 			});
 	});

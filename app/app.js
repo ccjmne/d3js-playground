@@ -23,7 +23,7 @@ var svg = d3.select('body').append('svg')
   	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 
-var focusTimeFormat = locale.timeFormat('%b %Y'),
+var focusTimeFormat = locale.timeFormat('%d %b %Y'),
 	axisTimeFormat = locale.timeFormat.multi([
 	  ['.%L', function(d) { return d.getMilliseconds(); }],
 	  [':%S', function(d) { return d.getSeconds(); }],
@@ -171,8 +171,7 @@ d3
 
 // COORDINATES HIGHLIGHT PLACEHOLDER
 		var highlightCoordinates = svg.append('g')
-			.style('display', 'none')
-			.attr('class', 'coordinates');
+			.style('display', 'none');
 
 // LINES
 	  svg.append('path')
@@ -192,12 +191,18 @@ d3
 		var highlight = svg.append('g')
 			.style('display', 'none');
 
-		var highlightAbscissa = highlightCoordinates.append('path')
-			.attr('d', 'M0,0V' + height);
+		var highlightAbscissa = highlightCoordinates.append('g');
+		highlightAbscissa.append('path').attr('d', 'M0,0V' + height)
+			.attr('class', 'highlight-coordinates');
+		var highlightAbscissaTick = highlightAbscissa.append('g').attr('class', 'axis');
+		highlightAbscissaTick.append('path').attr('d', 'M0,' + height + 'v15');
+		highlightAbscissaTick.append('text').attr('transform', 'translate(0, ' + (height + 25) + ')').attr('text-anchor', 'middle');
 		var highlightOrdinateCount = highlightCoordinates.append('path')
-			.attr('d', 'M0,0H' + width);
+			.attr('d', 'M0,0H' + width)
+			.attr('class', 'highlight-coordinates');
 		var highlightOrdinateTarget = highlightCoordinates.append('path')
-			.attr('d', 'M0,0H' + width);
+			.attr('d', 'M0,0H' + width)
+			.attr('class', 'highlight-coordinates');
 
 		var highlightTarget = highlight.append('g');
 		highlightTarget.append('circle') 
@@ -252,5 +257,7 @@ d3
 		  	highlightAbscissa.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ', 0)');
 		  	highlightOrdinateCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.count) + ')');
 		  	highlightOrdinateTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.target) + ')');
+
+		  	highlightAbscissaTick.select('text').text(focusTimeFormat(d.date));
 			});
 	});

@@ -6,18 +6,22 @@ svg	{
 }
 
 .axis {
+	opacity: 1;
+
 	path, line {
 	  fill: none;
 	  stroke: #000;
 	  shape-rendering: crispEdges;
+	  stroke-dasharray: 0;
 	}
 
 	text {
 	  font: 10px sans-serif;
+	  stroke: none;
 	}
 }
 
-.coordinates {
+.highlight-coordinates {
 	shape-rendering: crispEdges;
 	stroke-dasharray: 10 5;
 	stroke: grey;
