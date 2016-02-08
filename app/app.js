@@ -188,21 +188,25 @@ var highlightOrdinateTarget = highlightCoordinates.append('path')
 	.attr('d', 'M0,0H' + width)
 	.attr('class', 'highlight-coordinates');
 
-var highlightTarget = highlight.append('g');
+var highlightTarget = highlight.append('g')
+	.attr('text-anchor', 'middle');
 highlightTarget.append('circle') 
   .attr('class', 'target line')
   .attr('r', 4);
 highlightTarget.append('text')
-	.attr('class', 'target')
-	.attr('text-anchor', 'middle');
+	.attr('class', 'highlight-shadow');
+highlightTarget.append('text')
+	.attr('class', 'target');
 
-var highlightCount = highlight.append('g');
+var highlightCount = highlight.append('g')
+	.attr('text-anchor', 'middle');
 highlightCount.append('circle') 
   .attr('class', 'count line')
   .attr('r', 4);
+highlightCount.append('text') 
+  .attr('class', 'highlight-shadow');
 highlightCount.append('text')
-	.attr('class', 'count')
-	.attr('text-anchor', 'middle');
+	.attr('class', 'count');
 
 var legend = svg.append('g').attr('transform', 'translate(' + width + ', ' + height/2 + ')').style('fill', 'black');
 legend.append('path').attr('d', 'M10,-10h40').attr('class', 'line count');
@@ -236,13 +240,13 @@ svg.append('rect')
   .on('mousemove', function () {
 		var d = getClosestEntry(certData, x, d3.mouse(this)[0]);
 	  highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
-	  highlightCount.select('text')
+	  highlightCount.selectAll('text')
 	  	.transition().duration(100).ease(d3.ease('linear'))
 	  	.attr('transform', 'translate(0, ' + (d.target > d.count ? 17 : -8) + ')')
 	  	.text(cert.cert_short + ' : ' + d.count);
 
 	  highlightTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
-	  highlightTarget.select('text')
+	  highlightTarget.selectAll('text')
 	  	.transition().duration(100).ease(d3.ease('linear'))
 	  	.attr('transform', 'translate(0, ' + (d.target > d.count ? -8 : 17) + ')')
 	  	.text('Cible : ' + d.target);
