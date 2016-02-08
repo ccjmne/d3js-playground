@@ -8,49 +8,49 @@ var _ = require('lodash');
 
 var locale = require('./resources/fr-FR.js');
 var focusTimeFormat = locale.timeFormat('%d %b %Y'),
-	axisTimeFormat = locale.timeFormat.multi([
-	  ['.%L', function (d) { return d.getMilliseconds(); }],
-	  [':%S', function (d) { return d.getSeconds(); }],
-	  ['%I:%M', function (d) { return d.getMinutes(); }],
-	  ['%I %p', function (d) { return d.getHours(); }],
-	  ['%a %d', function (d) { return d.getDay() && d.getDate() !== 1; }],
-	  ['%b %d', function (d) { return d.getDate() !== 1; }],
-	  ['%B', function (d) { return d.getMonth(); }],
-	  ['%Y', function () { return true; }]
-	]);
+  axisTimeFormat = locale.timeFormat.multi([
+    ['.%L', function (d) { return d.getMilliseconds(); }],
+    [':%S', function (d) { return d.getSeconds(); }],
+    ['%I:%M', function (d) { return d.getMinutes(); }],
+    ['%I %p', function (d) { return d.getHours(); }],
+    ['%a %d', function (d) { return d.getDay() && d.getDate() !== 1; }],
+    ['%b %d', function (d) { return d.getDate() !== 1; }],
+    ['%B', function (d) { return d.getMonth(); }],
+    ['%Y', function () { return true; }]
+  ]);
 
 var dateBisector = d3.bisector(function (d) {
-	return d.date;
+  return d.date;
 }).left;
 
 function getClosestEntry (data, scale, pos) {
-	var date = scale.invert(pos),
-		idx = dateBisector(data, date),
-		hi = data[idx],
-		lo = data[idx -1];
+  var date = scale.invert(pos),
+    idx = dateBisector(data, date),
+    hi = data[idx],
+    lo = data[idx -1];
 
-	if (hi === undefined) {
-		return lo;
-	}
+  if (hi === undefined) {
+    return lo;
+  }
 
-	if (lo === undefined) {
-		return hi;
-	}
+  if (lo === undefined) {
+    return hi;
+  }
 
-	return date - lo.date > hi.date - date ? hi : lo;
+  return date - lo.date > hi.date - date ? hi : lo;
 }
 
 var cert, certData;
 
 var certificates;
 d3.json('./resources/certificates.json', function (error, data) {
-	certificates = data;
+  certificates = data;
 
-	var select = d3.select('body').append('select');
-	select.selectAll('option').data(_.values(certificates)).enter().append('option').attr('value', function (d) { return d.cert_pk; }).text(function (d) { return d.cert_short; });
-	select.node().addEventListener('change', function () {
-		displayData(this.value);
-	}, false);
+  var select = d3.select('body').append('select');
+  select.selectAll('option').data(_.values(certificates)).enter().append('option').attr('value', function (d) { return d.cert_pk; }).text(function (d) { return d.cert_short; });
+  select.node().addEventListener('change', function () {
+    displayData(this.value);
+  }, false);
 });
 
 
@@ -59,19 +59,19 @@ d3.json('./resources/certificates.json', function (error, data) {
 // ---------------------------------------------------------
 
 var margin = {
-		top: 20,
-		right: 100,
-		bottom: 30,
-		left: 50
-	},
+    top: 20,
+    right: 100,
+    bottom: 30,
+    left: 50
+  },
   width = 580 - margin.left - margin.right,
   height = 150 - margin.top - margin.bottom;
 
 var svg = d3.select('body').append('svg')
   .attr('width', width + margin.left + margin.right)
   .attr('height', height + margin.top + margin.bottom)
-	.append('g')
-  	.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+  .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 var x = d3.time.scale().range([0, width]).nice();
 var y = d3.scale.linear().range([height, 0]).nice();
@@ -91,10 +91,10 @@ grid.append('g')
 
 // AXES
 svg.append('g')
-	.attr('transform', 'translate(0,' + height+ ')')
-	.attr('class', 'x axis');
+  .attr('transform', 'translate(0,' + height+ ')')
+  .attr('class', 'x axis');
 svg.append('g')
-	.attr('class', 'y axis');
+  .attr('class', 'y axis');
 
 
 
@@ -157,7 +157,7 @@ svg.append('path')
 
 // COORDINATES HIGHLIGHT PLACEHOLDER
 var highlightCoordinates = svg.append('g')
-	.style('display', 'none');
+  .style('display', 'none');
 
 // LINES
 svg.append('path')
@@ -172,41 +172,41 @@ svg.append('path')
 // ---------------------------------------------------------
 
 var highlight = svg.append('g')
-	.style('display', 'none');
+  .style('display', 'none');
 
 var highlightAbscissa = highlightCoordinates.append('g');
 highlightAbscissa.append('path').attr('d', 'M0,0V' + height)
-	.attr('class', 'highlight-coordinates');
+  .attr('class', 'highlight-coordinates');
 var highlightAbscissaTick = highlightAbscissa.append('g').attr('class', 'axis');
 highlightAbscissaTick.append('path').attr('d', 'M0,' + height + 'v15');
 highlightAbscissaTick.append('text').attr('transform', 'translate(0, ' + (height + 25) + ')').attr('text-anchor', 'middle');
 
 var highlightOrdinateCount = highlightCoordinates.append('path')
-	.attr('d', 'M0,0H' + width)
-	.attr('class', 'highlight-coordinates');
+  .attr('d', 'M0,0H' + width)
+  .attr('class', 'highlight-coordinates');
 var highlightOrdinateTarget = highlightCoordinates.append('path')
-	.attr('d', 'M0,0H' + width)
-	.attr('class', 'highlight-coordinates');
+  .attr('d', 'M0,0H' + width)
+  .attr('class', 'highlight-coordinates');
 
 var highlightTarget = highlight.append('g')
-	.attr('text-anchor', 'middle');
+  .attr('text-anchor', 'middle');
 highlightTarget.append('circle') 
   .attr('class', 'target line')
   .attr('r', 4);
 highlightTarget.append('text')
-	.attr('class', 'highlight-shadow');
+  .attr('class', 'highlight-shadow');
 highlightTarget.append('text')
-	.attr('class', 'target');
+  .attr('class', 'target');
 
 var highlightCount = highlight.append('g')
-	.attr('text-anchor', 'middle');
+  .attr('text-anchor', 'middle');
 highlightCount.append('circle') 
   .attr('class', 'count line')
   .attr('r', 4);
 highlightCount.append('text') 
   .attr('class', 'highlight-shadow');
 highlightCount.append('text')
-	.attr('class', 'count');
+  .attr('class', 'count');
 
 var legend = svg.append('g').attr('transform', 'translate(' + width + ', ' + height/2 + ')').style('fill', 'black');
 legend.append('path').attr('d', 'M10,-10h40').attr('class', 'line count');
@@ -228,73 +228,73 @@ svg.append('rect')
   .style('fill', 'none')
   .style('pointer-events', 'all')
   .on('mouseover', function () {
-  	highlight.style('display', null);
-  	highlightCoordinates.style('display', null);
-  	grid.style('display', 'none');
+    highlight.style('display', null);
+    highlightCoordinates.style('display', null);
+    grid.style('display', 'none');
   })
   .on('mouseout', function () {
-  	highlight.style('display', 'none');
-  	highlightCoordinates.style('display', 'none');
-  	grid.style('display', null);
+    highlight.style('display', 'none');
+    highlightCoordinates.style('display', 'none');
+    grid.style('display', null);
   })
   .on('mousemove', function () {
-		var d = getClosestEntry(certData, x, d3.mouse(this)[0]);
-	  highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
-	  highlightCount.selectAll('text')
-	  	.transition().duration(100).ease(d3.ease('linear'))
-	  	.attr('transform', 'translate(0, ' + (d.target > d.count ? 17 : -8) + ')')
-	  	.text(cert.cert_short + ' : ' + d.count);
+    var d = getClosestEntry(certData, x, d3.mouse(this)[0]);
+    highlightCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.count) + ')');
+    highlightCount.selectAll('text')
+      .transition().duration(100).ease(d3.ease('linear'))
+      .attr('transform', 'translate(0, ' + (d.target > d.count ? 17 : -8) + ')')
+      .text(cert.cert_short + ' : ' + d.count);
 
-	  highlightTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
-	  highlightTarget.selectAll('text')
-	  	.transition().duration(100).ease(d3.ease('linear'))
-	  	.attr('transform', 'translate(0, ' + (d.target > d.count ? -8 : 17) + ')')
-	  	.text('Cible : ' + d.target);
+    highlightTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ',' +  y(d.target) + ')');
+    highlightTarget.selectAll('text')
+      .transition().duration(100).ease(d3.ease('linear'))
+      .attr('transform', 'translate(0, ' + (d.target > d.count ? -8 : 17) + ')')
+      .text('Cible : ' + d.target);
 
-		highlightAbscissa.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ', 0)');
-		highlightOrdinateCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.count) + ')');
-		highlightOrdinateTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.target) + ')');
+    highlightAbscissa.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(' + x(d.date) + ', 0)');
+    highlightOrdinateCount.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.count) + ')');
+    highlightOrdinateTarget.transition().duration(100).ease(d3.ease('linear')).attr('transform', 'translate(0, ' + y(d.target) + ')');
 
-		highlightAbscissaTick.select('text').text(focusTimeFormat(d.date));
-	});
+    highlightAbscissaTick.select('text').text(focusTimeFormat(d.date));
+  });
 
 
 
 function displayData (cert_pk) {
-	d3.json('./resources/2274.json', function (error, data) {
-		cert = certificates[cert_pk];
-		certData = _(data).map(function (entry, date) {
-			return {
-				count: entry.certificates[cert_pk].count,
-				target: entry.certificates[cert_pk].target,
-				date: new Date(date)
-			};
-		}).sortBy('date').value();
+  d3.json('./resources/2274.json', function (error, data) {
+    cert = certificates[cert_pk];
+    certData = _(data).map(function (entry, date) {
+      return {
+        count: entry.certificates[cert_pk].count,
+        target: entry.certificates[cert_pk].target,
+        date: new Date(date)
+      };
+    }).sortBy('date').value();
 
-		x.domain(d3.extent(certData, function (d) { return d.date; })).nice();
-		y.domain([0, _.reduce(certData, function (max, entry) {
-			return _.max([max, entry.count, entry.target]);
-		}, 0)]).nice();
+    x.domain(d3.extent(certData, function (d) { return d.date; })).nice();
+    y.domain([0, _.reduce(certData, function (max, entry) {
+      return _.max([max, entry.count, entry.target]);
+    }, 0)]).nice();
 
-		xAxis.scale(x);
-		yAxis.scale(y);
+    xAxis.scale(x);
+    yAxis.scale(y);
 
-	  svg.select('.x.axis').transition().duration(1000).call(xAxis.tickSize(6, 0).tickFormat(axisTimeFormat));
-		svg.select('.y.axis').transition().duration(1000).call(yAxis.tickSize(6, 0).tickFormat(d3.format('d')));
+    svg.select('.x.axis').transition().duration(1000).call(xAxis.tickSize(6, 0).tickFormat(axisTimeFormat));
+    svg.select('.y.axis').transition().duration(1000).call(yAxis.tickSize(6, 0).tickFormat(d3.format('d')));
 
-		svg.select('.grid.x').transition().duration(1000).call(xAxis.tickSize(-height, 0).tickFormat(''));
-	  svg.select('.grid.y').transition().duration(1000).call(yAxis.tickSize(-width, 0).tickFormat(''));
+    svg.select('.grid.x').transition().duration(1000).call(xAxis.tickSize(-height, 0).tickFormat(''));
+    svg.select('.grid.y').transition().duration(1000).call(yAxis.tickSize(-width, 0).tickFormat(''));
 
-	  svg.select('#clip-count path').transition().duration(1000).attr('d', areaAboveCount(certData));
-	  svg.select('#clip-target path').transition().duration(1000).attr('d', areaAboveTarget(certData));
-	  svg.select('.count.area').transition().duration(1000).attr('d', areaBelowCount(certData));
-	  svg.select('.target.area').transition().duration(1000).attr('d', areaBelowTarget(certData));
+    svg.select('#clip-count path').transition().duration(1000).attr('d', areaAboveCount(certData));
+    svg.select('#clip-target path').transition().duration(1000).attr('d', areaAboveTarget(certData));
+    svg.select('.count.area').transition().duration(1000).attr('d', areaBelowCount(certData));
+    svg.select('.target.area').transition().duration(1000).attr('d', areaBelowTarget(certData));
 
-	  svg.select('.target.line').transition().duration(1000).attr('d', targetLine(certData));
-	  svg.select('.count.line').transition().duration(1000).attr('d', countLine(certData));
+    svg.select('.target.line').transition().duration(1000).attr('d', targetLine(certData));
+    svg.select('.count.line').transition().duration(1000).attr('d', countLine(certData));
 
-	  certLegend.text(cert.cert_short);
-	});
+    certLegend.text(cert.cert_short);
+  });
 }
 
 displayData('1');
