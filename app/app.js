@@ -257,7 +257,7 @@ svg.append('rect')
 
 
 function displayData (cert_pk) {
-	d3.json('./resources/2399.json', function (error, data) {
+	d3.json('./resources/2274.json', function (error, data) {
 		cert = certificates[cert_pk];
 		certData = _(data).map(function (entry, date) {
 			return {
@@ -267,7 +267,7 @@ function displayData (cert_pk) {
 			};
 		}).sortBy('date').value();
 
-		x.domain([_.minBy(certData, 'date').date, _.maxBy(certData, 'date').date]).nice();
+		x.domain(d3.extent(certData, function (d) { return d.date; })).nice();
 		y.domain([0, _.reduce(certData, function (max, entry) {
 			return _.max([max, entry.count, entry.target]);
 		}, 0)]).nice();
